@@ -14,7 +14,7 @@ class MessageDAO:
         self.test_data_file_name = "../../resources/test_data.csv"
 
     # Retrieve messages from provided file
-    def retrieve_messages(self, file_name, keyword='all'):
+    def __retrieve_messages(self, file_name, keyword='all'):
         # Read file
         with open(file_name) as file:
             reader = csv.reader(file)
@@ -28,12 +28,12 @@ class MessageDAO:
     # Retrieves training messages from the data source that contains the keyword. If no keyword is provided,
     # all messages in the data source are retrieved.
     def retrieve_training_messages(self, keyword='all'):
-        return self.retrieve_messages(self.train_data_file_name, keyword)
+        return self.__retrieve_messages(self.train_data_file_name, keyword)
 
     # Retrieves testing messages from the data source that contains the keyword. If no keyword is provided,
     # all messages in the data source are retrieved.
     def retrieve_testing_messages(self, keyword='all'):
-        return self.retrieve_messages(self.test_data_file_name, keyword)
+        return self.__retrieve_messages(self.test_data_file_name, keyword)
 
 
 def main():
@@ -41,6 +41,6 @@ def main():
     messageDAO = MessageDAO()
     print messageDAO.retrieve_training_messages('cheering')
     print messageDAO.retrieve_testing_messages('cheering')
-
+  
 if __name__ == '__main__':
     main()
