@@ -10,7 +10,7 @@ class MessageDAO:
     # No arg Constructor
     def __init__(self):
         self.messages = [] # Empty list
-        self.data_source_file_name = "../../resources/test_data.csv"
+        self.data_source_file_name = "../../resources/train_data.csv"
 
     # Retrieves messages from the data source that contains the keyword. If no keyword is provided,
     # all messages in the data source are retrieved.
