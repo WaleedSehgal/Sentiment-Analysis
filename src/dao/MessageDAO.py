@@ -10,13 +10,13 @@ class MessageDAO:
     # No arg Constructor
     def __init__(self):
         self.messages = [] # Empty list
-        self.data_source_file_name = "../../resources/train_data.csv"
+        self.train_data_file_name = "../../resources/train_data.csv"
+        self.test_data_file_name = "../../resources/test_data.csv"
 
-    # Retrieves messages from the data source that contains the keyword. If no keyword is provided,
-    # all messages in the data source are retrieved.
-    def retrieve_messages(self, keyword='all'):
+    # Retrieve messages from provided file
+    def retrieve_messages(self, file_name, keyword='all'):
         # Read file
-        with open(self.data_source_file_name) as file:
+        with open(file_name) as file:
             reader = csv.reader(file)
             for line in reader:
                 message = line[5]
@@ -25,11 +25,22 @@ class MessageDAO:
 
         return self.messages
 
+    # Retrieves training messages from the data source that contains the keyword. If no keyword is provided,
+    # all messages in the data source are retrieved.
+    def retrieve_training_messages(self, keyword='all'):
+        return self.retrieve_messages(self.train_data_file_name, keyword)
+
+    # Retrieves testing messages from the data source that contains the keyword. If no keyword is provided,
+    # all messages in the data source are retrieved.
+    def retrieve_testing_messages(self, keyword='all'):
+        return self.retrieve_messages(self.test_data_file_name, keyword)
+
 
 def main():
     # Used for testing
     messageDAO = MessageDAO()
-    print messageDAO.retrieve_messages('cheering')
+    print messageDAO.retrieve_training_messages('cheering')
+    print messageDAO.retrieve_testing_messages('cheering')
 
 if __name__ == '__main__':
     main()
