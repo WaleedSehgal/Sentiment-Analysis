@@ -19,9 +19,10 @@ class MessageDAO:
         with open(file_name) as file:
             reader = csv.reader(file)
             for line in reader:
+                sentiment = line[0]
                 message = line[5]
                 if keyword == 'all' or (keyword != 'all' and (message.find(keyword) != -1)):
-                    self.messages.append(message)
+                    self.messages.append((sentiment,message))
 
         return self.messages
 
@@ -41,6 +42,6 @@ def main():
     messageDAO = MessageDAO()
     print messageDAO.retrieve_training_messages('cheering')
     print messageDAO.retrieve_testing_messages('cheering')
-  
+
 if __name__ == '__main__':
     main()
