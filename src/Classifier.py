@@ -23,6 +23,15 @@ class Classifier:
 
         return stripped
 
+    # Helper method that generates word features based on input
+    # Input: List of tuples(List of words, sentiment for these words)
+    def __generate_word_features(self, input):
+        print
+
+    # Helper method that tokenizes input
+    # Input: List of tuples(Tweet message, sentiment)
+    def __tokennize_input(self, input):
+        print
 
 def main():
     A = ['we', 'must', 'win']
