@@ -10,8 +10,8 @@ class MessageDAO:
     # No arg Constructor
     def __init__(self):
         self.messages = [] # Empty list
-        self.train_data_file_name = "../../resources/train_data.csv"
-        self.test_data_file_name = "../../resources/test_data.csv"
+        self.train_data_file_name = "../resources/train_data.csv"
+        self.test_data_file_name = "../resources/test_data.csv"
 
     # Retrieve messages from provided file
     def __retrieve_messages(self, file_name, keyword='all'):
@@ -22,7 +22,7 @@ class MessageDAO:
                 sentiment = line[0]
                 message = line[5]
                 if keyword == 'all' or (keyword != 'all' and (message.find(keyword) != -1)):
-                    self.messages.append((sentiment,message))
+                    self.messages.append((message,sentiment))
 
         return self.messages
 
