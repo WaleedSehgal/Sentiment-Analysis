@@ -7,13 +7,13 @@ class Classifier:
     def __init__(self):
         self.training_features = None
 
-    # Feature Extraction
-    def extract_features(self, message, training_features):
-            features = {}
-            words = set(message)
-            for word in training_features:
-                features[word] = (word in words)
-            return features
+    # Using a Bag of Words Model, extract features and return dictionary of features
+    # Input: List of words
+    def __generate_word_features(self, words):
+        features = {}
+        for word in words:
+            features[word] = True
+        return features
 
     def train(self):
         # Get training messages
@@ -21,17 +21,20 @@ class Classifier:
 
         training_messages = message_dao.retrieve_training_messages()
 
-        # Preprocess training messages
+        # Pre-process training messages
         training_messages = self.__preprocess(training_messages)
 
         # Get training features
-        self.training_features = self.__generate_word_features(training_messages)
+        positive_words = [word for words, sentiment in training_messages for word in words if sentiment == '4']
+        negative_words = [word for words, sentiment in training_messages for word in words if sentiment == '0']
 
-        training_set = nltk.classify.apply_features(self.extract_features, training_messages)
+        self.training_features = self.__generate_word_features(positive_words + negative_words)
 
-        classifier = nltk.NaiveBayesClassifier.train(training_set)
+        #training_set = nltk.classify.apply_features(__generate_word_features, training_messages)
 
-        # Get Tesing Messages
+        classifier = nltk.NaiveBayesClassifier.train(list(self.training_features))
+
+        # Get Testing Messages
         testing_messages = message_dao.retrieve_testing_messages()
 
         print 'Accuracy:', nltk.classify.accuracy(classifier, testing_messages)
@@ -51,16 +54,6 @@ class Classifier:
 
         return stripped
 
-    # Helper method that generates word features based on input
-    # Input: List of tuples(List of words, sentiment for these words)
-    def __generate_word_features(self, messages):
-        temp = []
-
-        for (messages, sentiment) in messages:
-            temp.extend(messages)
-
-        return list(set(temp))
-
     # Helper method that tokenizes input
     # Input: List of tuples(Tweet message, sentiment)
     def __tokenize_input(self, messages):
@@ -77,16 +70,6 @@ class Classifier:
         processed_messages = self.__tokenize_input(messages)
 
         return processed_messages
-
-
-    # Feature Extraction
-    def extract_features(self, message):
-        features = {}
-        words = set(message)
-        for word in self.training_features:
-            features['contains(%s)' % word] = (word in words)
-        return features
-
 
 def main():
     classifier = Classifier()
