@@ -28,11 +28,12 @@ class Classifier:
         positive_words = [word for words, sentiment in training_messages for word in words if sentiment == '4']
         negative_words = [word for words, sentiment in training_messages for word in words if sentiment == '0']
 
-        self.training_features = self.__generate_word_features(positive_words + negative_words)
+        self.training_features.append((self.__generate_word_features(self.__generate_word_features(positive_words), '4')))
+        self.training_features.append((self.__generate_word_features(self.__generate_word_features(negative_words), '0')))
 
         #training_set = nltk.classify.apply_features(__generate_word_features, training_messages)
 
-        classifier = nltk.NaiveBayesClassifier.train(list(self.training_features))
+        classifier = nltk.NaiveBayesClassifier.train(self.training_features)
 
         # Get Testing Messages
         testing_messages = message_dao.retrieve_testing_messages()
