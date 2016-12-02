@@ -8,9 +8,16 @@ class Classifier:
     def __init__(self):
         self.training_features = []
         self.testing_features = []
+        nltk.download("stopwords")
+        self.classifier = self.get_classifier()
 
-    def classify(self):
-        print 'Classify'
+    def classify(self, message):
+        # Return if classifier not initialized
+        if not self.classifier:
+            return
+
+        features = self.__generate_word_features(message.split())
+        print self.classifier.classify(features);
 
     def get_classifier(self):
         f = None
@@ -38,9 +45,11 @@ class Classifier:
         # Get testing features
         positive_words = [word for words, sentiment in testing_messages for word in words if sentiment == '4']
         negative_words = [word for words, sentiment in testing_messages for word in words if sentiment == '0']
+        neutral_words = [word for words, sentiment in testing_messages for word in words if sentiment == '2']
 
         self.testing_features.append((self.__generate_word_features(positive_words), '4'))
         self.testing_features.append((self.__generate_word_features(negative_words), '0'))
+        self.testing_features.append((self.__generate_word_features(neutral_words), '2'))
 
         print 'Testing...'
         print 'Accuracy:', nltk.classify.util.accuracy(classifier, self.testing_features)
@@ -48,6 +57,8 @@ class Classifier:
     # Using a Bag of Words Model, extract features and return dictionary of features
     # Input: List of words
     def __generate_word_features(self, words):
+        # remove stop words
+        words = self.__remove_stop_words(words)
         features = {}
         for word in words:
             features[word] = True
@@ -62,20 +73,22 @@ class Classifier:
         training_messages = message_dao.retrieve_training_messages()
 
         # Pre-process training messages
-        training_messages = self.__preprocess(training_messages)[:100]
+        training_messages = self.__preprocess(training_messages)[:1000]
 
         print 'Generating training features...'
 
         # Get training features
         positive_words = [word for words, sentiment in training_messages for word in words if sentiment == '4']
+        neutral_words = [word for words, sentiment in training_messages for word in words if sentiment == '2']
         negative_words = [word for words, sentiment in training_messages for word in words if sentiment == '0']
 
         self.training_features.append((self.__generate_word_features(positive_words),'4'))
         self.training_features.append((self.__generate_word_features(negative_words), '0'))
-
+        self.training_features.append((self.__generate_word_features(neutral_words), '2'))
         print 'Training...'
 
         classifier = nltk.NaiveBayesClassifier.train(self.training_features)
+        classifier.show_most_informative_features(20)
 
         # Save classifier
         f = open('classifier.pickle', 'wb')
@@ -117,8 +130,6 @@ class Classifier:
 
 def main():
     classifier = Classifier()
-    c = classifier.get_classifier()
-    classifier.test(c)
-
+    classifier.classify("I love snow")
 if __name__ == '__main__':
     main()
