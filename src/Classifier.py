@@ -6,6 +6,7 @@ import re
 import itertools
 from nltk.stem.snowball import SnowballStemmer
 import sys
+from nltk.corpus import wordnet
 
 # Set encoding to utf8
 reload(sys)
@@ -18,6 +19,7 @@ class Classifier:
         self.testing_features = []
         self.word_features = []
         nltk.download("stopwords")
+        nltk.download("wordnet")
         self.classifier = self.get_classifier()
 
     def classify(self, message):
@@ -127,14 +129,20 @@ class Classifier:
                 continue
 
             # Remove special characters
-            word = re.sub(r'[:.?!\,()#-+$^%;-]*', '', word)
+            word = re.sub(r'[/=:.?!\,()#-+$^%;-]*', '', word)
 
             # Remove repeating characters
             word = ''.join(ch for ch, _ in itertools.groupby(word))
 
+            # Throw out words not in english dictionary
+            '''if not wordnet.synsets(word):
+                print word
+                continue
+'''
             # Use Snowball Stemmer to stem word
             word = snowball_stemmer.stem(word)
 
+            print word
             words.append(word)
 
         return ' '.join(words)
