@@ -61,7 +61,7 @@ class Classifier:
         training_messages = message_dao.retrieve_training_messages()
 
         # Pre-process training messages
-        training_messages = self.__preprocess(training_messages)[:200]
+        training_messages = self.__preprocess(training_messages)[:2000]
 
         print 'Generating training features...'
 
@@ -118,22 +118,24 @@ class Classifier:
             if re.search(r'@\w', word) or re.search(r'http:', word) or re.search(r'\d', word) or len(word) < 3:
                 continue
 
-            word = re.sub(r'[.?!\,()#-+$^%;-]*', '', word)
+            word = re.sub(r'[:.?!\,()#-+$^%;-]*', '', word)
             words.append(word)
 
         return ' '.join(words)
 
     def __get_all_words(self, messages):
-        words = []
+        all_words = []
         for (words, sentiment) in messages:
-            words.extend(words)
+            all_words.extend(words)
 
-        return self.__remove_stop_words(words)  # remove stop words
+        print self.__remove_stop_words(all_words)
+
+        return self.__remove_stop_words(all_words)  # remove stop words
 
     def __generate_word_features(self, words):
         words = nltk.FreqDist(words)
         word_features = words.keys()
-
+        print word_features
         return word_features
 
     def __extract_features(self, message):
@@ -149,6 +151,6 @@ class Classifier:
 def main():
     classifier = Classifier()
     classifier.test()
-    classifier.classify("I hate snow")
+    #classifier.classify("I hate snow")
 if __name__ == '__main__':
     main()
