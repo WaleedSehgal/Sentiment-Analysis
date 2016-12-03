@@ -3,7 +3,13 @@ from MessageDAO import MessageDAO
 import nltk.classify
 import pickle
 import re
-import random
+import itertools
+from nltk.stem.snowball import SnowballStemmer
+import sys
+
+# Set encoding to utf8
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 class Classifier:
@@ -113,12 +119,22 @@ class Classifier:
 
     def __clean(self, message):
         words = []
+        snowball_stemmer = SnowballStemmer("english")
 
         for word in message.split():
-            if re.search(r'@\w', word) or re.search(r'http:', word) or re.search(r'\d', word) or len(word) < 3:
+            # Remove usernames, urls, numbers and words shorter than 3
+            if re.search(r'@\w', word) or re.search(r'http:', word) or re.search(r'\d', word) or len(word) < 2:
                 continue
 
+            # Remove special characters
             word = re.sub(r'[:.?!\,()#-+$^%;-]*', '', word)
+
+            # Remove repeating characters
+            word = ''.join(ch for ch, _ in itertools.groupby(word))
+
+            # Use Snowball Stemmer to stem word
+            word = snowball_stemmer.stem(word)
+
             words.append(word)
 
         return ' '.join(words)
