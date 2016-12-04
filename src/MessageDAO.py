@@ -10,7 +10,7 @@ class MessageDAO:
     # No arg Constructor
     def __init__(self):
         self.messages = []  # Empty list
-        self.train_data_file_name = "../resources/train.csv"
+        self.train_data_file_name = "../resources/train_data.csv"
         self.test_data_file_name = "../resources/test_data.csv"
 
     # Retrieve messages from provided file
