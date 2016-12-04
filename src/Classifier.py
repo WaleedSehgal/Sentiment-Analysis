@@ -6,7 +6,9 @@ import re
 import itertools
 from nltk.stem.snowball import SnowballStemmer
 import sys
-from nltk.corpus import wordnet
+import enchant
+import time
+import random
 
 # Set encoding to utf8
 reload(sys)
@@ -61,16 +63,26 @@ class Classifier:
         print 'Accuracy:', nltk.classify.util.accuracy(self.classifier, self.testing_features)
 
     def __train(self):
+        start_train_time = time.time()
+        start_message_time = time.time()
+
         print 'Acquiring training messages...'
 
         # Get training messages
         message_dao = MessageDAO()
 
         training_messages = message_dao.retrieve_training_messages()
+        random.shuffle(training_messages)
+        training_messages = training_messages[:5000]
+        print len(training_messages), 'recevived -', time.time() - start_message_time
+
+        start_process_time = time.time()
+        print 'Processing messages...'
 
         # Pre-process training messages
-        training_messages = self.__preprocess(training_messages)[:2000]
+        training_messages = self.__preprocess(training_messages)
 
+        print 'Processing complete - ', time.time() - start_message_time
         print 'Generating training features...'
 
         # Get training features
@@ -80,6 +92,8 @@ class Classifier:
         print 'Training...'
 
         classifier = nltk.NaiveBayesClassifier.train(self.training_features)
+        print 'Training complete -', time.time() - start_train_time
+
         classifier.show_most_informative_features(20)
 
         # Save classifier
@@ -122,10 +136,14 @@ class Classifier:
     def __clean(self, message):
         words = []
         snowball_stemmer = SnowballStemmer("english")
+        dictionary = enchant.Dict("en_US")
 
         for word in message.split():
+            # Remove white space
+            word = word.strip()
+
             # Remove usernames, urls, numbers and words shorter than 3
-            if re.search(r'@\w', word) or re.search(r'http:', word) or re.search(r'\d', word) or len(word) < 2:
+            if re.search(r'@\w', word) or re.search(r'http:', word) or re.search(r'\d', word):
                 continue
 
             # Remove special characters
@@ -134,15 +152,19 @@ class Classifier:
             # Remove repeating characters
             word = ''.join(ch for ch, _ in itertools.groupby(word))
 
-            # Throw out words not in english dictionary
-            '''if not wordnet.synsets(word):
-                print word
+            if len(word) < 3:
                 continue
-'''
-            # Use Snowball Stemmer to stem word
-            word = snowball_stemmer.stem(word)
 
-            print word
+            # Throw out words not in english dictionary
+            if not dictionary.check(word):
+                continue
+
+            try:
+                # Use Snowball Stemmer to stem word
+                word = snowball_stemmer.stem(word)
+            except UnicodeDecodeError:
+                continue
+
             words.append(word)
 
         return ' '.join(words)
@@ -152,14 +174,11 @@ class Classifier:
         for (words, sentiment) in messages:
             all_words.extend(words)
 
-        print self.__remove_stop_words(all_words)
-
         return self.__remove_stop_words(all_words)  # remove stop words
 
     def __generate_word_features(self, words):
         words = nltk.FreqDist(words)
         word_features = words.keys()
-        print word_features
         return word_features
 
     def __extract_features(self, message):
@@ -167,7 +186,7 @@ class Classifier:
         features = {}
 
         for word in self.word_features:
-            features[word] = (word in words)
+            features['%d %s' % (len(word), word)] = (word in words)
 
         return features
 
@@ -175,6 +194,6 @@ class Classifier:
 def main():
     classifier = Classifier()
     classifier.test()
-    #classifier.classify("I hate snow")
+    classifier.classify("I dont like Iphone 7!")
 if __name__ == '__main__':
     main()
