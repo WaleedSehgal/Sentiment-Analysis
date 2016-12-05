@@ -29,8 +29,8 @@ class Classifier:
         if not self.classifier:
             return
 
-        features = self.__extract_features(message.split())
-        print self.classifier.classify(features);
+        features = self.__extract_features2(message.split())
+        return self.classifier.classify(features)
 
     def get_classifier(self):
         f = None
@@ -74,7 +74,7 @@ class Classifier:
         training_messages = message_dao.retrieve_training_messages()
         random.shuffle(training_messages)
         training_messages = training_messages[:5000]
-        print len(training_messages), 'recevived -', time.time() - start_message_time
+        print len(training_messages), 'received -', time.time() - start_message_time
 
         start_process_time = time.time()
         print 'Processing messages...'
@@ -128,7 +128,7 @@ class Classifier:
         return tokenized_messages
 
     # Preprocessing method
-    def __preprocess(self, messages):
+    def preprocess(self, messages):
         # Tokenize messages
         processed_messages = self.__tokenize_input(messages)
         return processed_messages
@@ -190,10 +190,32 @@ class Classifier:
 
         return features
 
+    def __extract_features2(self, message):
+        words = set(message)
+        features = {}
+
+        for word in words:
+            features[word] = True
+
+        return features
+
+    def test_list_classify(self, term):
+        # Instantiate Classifier object
+        classifier = Classifier()
+        results = []
+
+        # Instantiate DAO to retrieve messages
+        message_dao = MessageDAO()
+        messages = message_dao.retrieve_testing_messages(term)
+
+        for message, sentiment in messages:
+            results.append((message, classifier.classify(message)))
+
+        return results
+
 
 def main():
     classifier = Classifier()
-    classifier.test()
-    classifier.classify("I dont like Iphone 7!")
+    print classifier.test_list_classify("sad")
 if __name__ == '__main__':
     main()
