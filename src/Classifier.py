@@ -128,7 +128,7 @@ class Classifier:
         return tokenized_messages
 
     # Preprocessing method
-    def preprocess(self, messages):
+    def __preprocess(self, messages):
         # Tokenize messages
         processed_messages = self.__tokenize_input(messages)
         return processed_messages
@@ -216,6 +216,7 @@ class Classifier:
 
 def main():
     classifier = Classifier()
-    print classifier.test_list_classify("sad")
+    classifier.test()
+    # print classifier.test_list_classify("all")
 if __name__ == '__main__':
     main()
