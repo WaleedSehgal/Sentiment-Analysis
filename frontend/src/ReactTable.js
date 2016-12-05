@@ -13,8 +13,7 @@ function format(cell, row){
 }
 
 class ReactTable extends Component {
-
-   render() {
+     render() {
         return (
         <BootstrapTable
         	data={this.props.value}
@@ -25,10 +24,10 @@ class ReactTable extends Component {
         	search={false}>
           <TableHeaderColumn dataField="sentiment" width="180" filter={{type: "SelectFilter", options: sentimentType}}
 
-           isKey={true} dataAlign="left" dataSort={true}>Sentiment
+           isKey={false} dataAlign="left" dataSort={true}>Sentiment
 
            </TableHeaderColumn>
-          <TableHeaderColumn dataField="tweet" dataSort={true} dataAlign="center">Tweet</TableHeaderColumn>
+          <TableHeaderColumn dataField="tweet" isKey={true} dataSort={true} dataAlign="center">Tweet</TableHeaderColumn>
           {/* <TableHeaderColumn dataField="price" dataAlign="center"
           dataFormat={format}>Product Price</TableHeaderColumn> -*/}
         </BootstrapTable>
