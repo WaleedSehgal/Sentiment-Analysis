@@ -17,20 +17,25 @@ sys.setdefaultencoding('utf8')
 
 class Classifier:
     def __init__(self):
+        print 'Initializing...'
         self.training_features = []
         self.testing_features = []
-        self.word_features = []
+        self.message_dao = MessageDAO()
+        self.word_features = self.__generate_word_features(self.__get_all_words(self.__preprocess(self.message_dao.retrieve_testing_messages()[:100])))
         nltk.download("stopwords")
         nltk.download("wordnet")
         self.classifier = self.get_classifier()
+        print 'Initialization complete.'
 
     def classify(self, message):
         # Return if classifier not initialized
         if not self.classifier:
             return
 
+        # Clean message
+        message = self.__clean(message)
         features = self.__extract_features(message.split())
-        print self.classifier.classify(features);
+        return self.classifier.classify(features)
 
     def get_classifier(self):
         f = None
@@ -74,7 +79,7 @@ class Classifier:
         training_messages = message_dao.retrieve_training_messages()
         random.shuffle(training_messages)
         training_messages = training_messages[:5000]
-        print len(training_messages), 'recevived -', time.time() - start_message_time
+        print len(training_messages), 'received -', time.time() - start_message_time
 
         start_process_time = time.time()
         print 'Processing messages...'
@@ -190,10 +195,24 @@ class Classifier:
 
         return features
 
+    def test_list_classify(self, term):
+        # Instantiate Classifier object
+        classifier = Classifier()
+        results = []
+
+        # Instantiate DAO to retrieve messages
+        message_dao = MessageDAO()
+        messages = message_dao.retrieve_testing_messages(term)
+
+        for message, sentiment in messages:
+            results.append((message, classifier.classify(message)))
+
+        return results
+
 
 def main():
     classifier = Classifier()
-    classifier.test()
-    classifier.classify("I dont like Iphone 7!")
+    #classifier.test()
+    print classifier.test_list_classify("love")
 if __name__ == '__main__':
     main()
