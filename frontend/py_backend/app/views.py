@@ -1,5 +1,5 @@
 from app import app
-from flask import jsonify, request
+from flask import jsonify, request, render_template
 import json as simplejson
 from Classifier import Classifier
 from MessageDAO import MessageDAO
@@ -7,7 +7,7 @@ from MessageDAO import MessageDAO
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!"
+    return render_template('index.html')
 
 _CLASSIFIER = None
 
